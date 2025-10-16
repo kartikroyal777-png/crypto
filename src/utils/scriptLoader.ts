@@ -1,20 +1,15 @@
 // A map to store promises for scripts that are currently being loaded or have been loaded.
 const loadedScripts = new Map<string, Promise<Event>>();
-// A set to track script source URLs that have already failed to load.
-const failedScriptSources = new Set<string>();
 
 export function loadScriptOnce(src: string, attrs: Record<string, string> = {}): Promise<Event> {
   if (!src) {
     return Promise.reject(new Error('loadScriptOnce: src is required.'));
   }
 
-  // If this source URL has failed before, immediately reject without a new network request.
-  if (failedScriptSources.has(src)) {
-    return Promise.reject(new Error(`Script source has previously failed to load: ${src}`));
-  }
-
+  // A unique key for each script based on its source and attributes.
   const scriptKey = `${src}?${new URLSearchParams(attrs).toString()}`;
 
+  // If the script is already loaded or loading, return the existing promise.
   if (loadedScripts.has(scriptKey)) {
     return loadedScripts.get(scriptKey)!;
   }
@@ -28,25 +23,25 @@ export function loadScriptOnce(src: string, attrs: Record<string, string> = {}):
       script.setAttribute(key, value);
     });
 
-    script.onload = (e) => resolve(e);
+    script.onload = (e) => {
+      resolve(e);
+    };
 
     script.onerror = (e) => {
-      // If this is the first time this *source* URL has failed, log a detailed warning.
-      if (!failedScriptSources.has(src)) {
-        console.warn(
-          `[scriptLoader] Failed to load script source: ${src}. This is likely due to network restrictions or an ad-blocker in the development environment. All subsequent requests for this source will be blocked to prevent network noise.`,
-          e
-        );
-        // Add the source URL to our set of failed scripts.
-        failedScriptSources.add(src);
-      }
-      // Reject the promise so the individual component can update its UI.
+      console.warn(
+        `[scriptLoader] Failed to load script: ${src}. This might be due to an ad-blocker or network issue. The loader will try again if the component re-renders.`,
+        e
+      );
+      // Remove the promise from the map on failure.
+      // This allows subsequent attempts to create a new script element and try loading again.
+      loadedScripts.delete(scriptKey);
       reject(e);
     };
 
     document.head.appendChild(script);
   });
 
+  // Store the promise in the map to prevent duplicate script injections.
   loadedScripts.set(scriptKey, promise);
   return promise;
 }

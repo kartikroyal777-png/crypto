@@ -1,26 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import AdSlot from '../components/AdSlot';
 import VideoAd from '../components/VideoAd';
+import GenericAdSlot from '../components/GenericAdSlot';
 import { getAdByPlacement } from '../data/demoAds';
+import { htmlAdSnippets } from '../data/htmlAds';
 
 const HomePage: React.FC = () => {
-  // Existing Ads
+  // Existing Ads from demoAds.ts
   const heroAd = getAdByPlacement('home.hero');
-  const inlineContentAd = getAdByPlacement('home.content.1');
   const inlineVideoAd = getAdByPlacement('home.content.2');
-  const sidebarAd1 = getAdByPlacement('home.sidebar.1');
   const sidebarAd2 = getAdByPlacement('home.sidebar.2');
   const footerAd = getAdByPlacement('home.footer');
-
-  // New Ads
-  const postHeroAd = getAdByPlacement('home.post-hero');
-  const postHeroAd2 = getAdByPlacement('home.post-hero.2');
-  const midContentAd = getAdByPlacement('home.mid-content.1');
-  const postArticleAd = getAdByPlacement('home.post-article.1');
-  const sidebarAd3 = getAdByPlacement('home.sidebar.3');
   const sidebarAd4 = getAdByPlacement('home.sidebar.4');
   const preFooterAd1 = getAdByPlacement('home.pre-footer.1');
   const preFooterAd2 = getAdByPlacement('home.pre-footer.2');
+  const postArticleAd = getAdByPlacement('home.post-article.1');
 
   const scrollAnimationRef = useRef<number | null>(null);
 
@@ -72,6 +66,7 @@ const HomePage: React.FC = () => {
       window.removeEventListener('touchstart', stopScrolling);
       window.removeEventListener('mousedown', stopScrolling);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -88,9 +83,12 @@ const HomePage: React.FC = () => {
         )}
       </section>
 
-      <section className="my-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <AdSlot ad={postHeroAd} placement="home.post-hero" className="w-full h-32" />
-        <AdSlot ad={postHeroAd2} placement="home.post-hero.2" className="w-full h-32" />
+      {/* Leaderboard Banner Ad */}
+      <section className="my-8 flex justify-center">
+        <GenericAdSlot 
+          htmlContent={htmlAdSnippets.banner_high_perf_728x90} 
+          className="w-[728px] h-[90px] bg-gray-200/50 dark:bg-gray-800/50 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg" 
+        />
       </section>
 
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -102,7 +100,12 @@ const HomePage: React.FC = () => {
             </p>
           </article>
 
-          <AdSlot ad={inlineContentAd} placement="home.content.1" className="w-full h-24" />
+          {/* In-content Banner Ad */}
+          <GenericAdSlot 
+            htmlContent={htmlAdSnippets.banner_high_perf_468x60} 
+            className="w-full max-w-[468px] h-[60px] mx-auto bg-gray-200/50 dark:bg-gray-800/50 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg" 
+          />
+
           <AdSlot ad={postArticleAd} placement="home.post-article.1" className="w-full h-24" />
 
           <article className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -114,18 +117,24 @@ const HomePage: React.FC = () => {
               <VideoAd scriptSrc={inlineVideoAd.scriptSrc} dataAdmpid={inlineVideoAd.dataAdmpid} />
             )}
           </article>
-
-          <AdSlot ad={midContentAd} placement="home.mid-content.1" className="w-full h-48" />
         </div>
 
         <aside className="space-y-6">
+          {/* Sidebar Banner Ad 1 (300x250) */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
             <h4 className="font-bold mb-4">Sponsored Tools</h4>
-            <AdSlot ad={sidebarAd1} placement="home.sidebar.1" className="w-full h-60" />
+            <GenericAdSlot 
+              htmlContent={htmlAdSnippets.banner_high_perf_300x250} 
+              className="w-[300px] h-[250px] mx-auto bg-gray-200/50 dark:bg-gray-800/50 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg" 
+            />
           </div>
+          {/* Sidebar Banner Ad 2 (effectivegatecpm) */}
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
             <h4 className="font-bold mb-4">Another Sponsor</h4>
-            <AdSlot ad={sidebarAd3} placement="home.sidebar.3" className="w-full h-48" />
+             <GenericAdSlot 
+              htmlContent={htmlAdSnippets.banner_effective_gate} 
+              className="w-full min-h-[100px] bg-gray-200/50 dark:bg-gray-800/50 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-lg" 
+            />
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
             <h4 className="font-bold mb-4">Newsletter</h4>
